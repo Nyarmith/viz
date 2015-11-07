@@ -1,0 +1,22 @@
+	<head>
+		<title>The temperature</title>
+		
+		<!-- JQuery is required for the WeatherSTEM component to work -->
+		<script src="//code.jquery.com/jquery-latest.min.js"></script>
+		
+		<!-- WeatherSTEM API component must be included AFTER JQuery include -->
+		<script src="//static.weatherstem.com/api.min.js"></script>
+		
+		<!-- You must include your API key -->
+		<meta name="WeatherSTEM-api-key" content="1yq3rd1g"/>
+		
+		<!-- This sets the station scope for the page -->
+		<meta name="WeatherSTEM-station" content="centre/parkforest"/>
+		
+	</head>
+	<body>
+	
+		<!-- data-sensor can be the value of any supported sensor -->
+		The current temperature is <span data-sensor="Thermometer"></span>° F.
+		
+	</body>
