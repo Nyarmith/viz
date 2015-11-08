@@ -1,5 +1,61 @@
-function doAllPlease(inDat)
+function doAllPlease(inDat,axes)
 {
+    function return_sets(depth, item_set)//depth=number of sets to return
+    {
+        var out=new Array();
+        //partition about the largest
+        for (var i=0;i<item_set.length;i+=item_set.length/3)
+        {
+            out[i]=[];
+            for (var j=i; j<i+item_set.length/3;i++)
+            {
+                out[i][j-i] = item_set[j];
+            }
+        }
+        //this.dist=function(arr1,arr2)
+        //{
+        //    return (Math.sqrt(arr1[0]*arr2[0]+arr1[1]*arr2[1]+arr1[2]*arr2[2]));
+        //}
+        //var offset=item_set.length;
+        //var set_array=new Array(offset);
+        //var set_copy=new Array(offset);
+        //for (var i=0;i<offset;i++)
+        //{
+        //    set_copy[i]=item_set[i];
+        //}
+
+        ////get min distances in set
+        //while(set_copy.length>0)
+        //{
+        //    var min=999999999999999999999999;
+        //    var min1;
+        //    var min2;
+        //    for (var i=0;i<(set_copy.length+set_array.length);i++)
+        //    {
+        //        for (var j=0;j<(set_copy.length+set_array.length);j++)
+        //        {
+        //            var min
+        //            if (i<set_copy.length)
+        //            {
+        //                if (j<set_copy.length)
+        //                {
+        //                     this.dist(set_copy[i],set_copy[j]);
+
+        //                }
+        //                else
+        //                {
+        //                    j = this.dist(set_copy[i],set_array[j]);
+        //                }
+        //            }
+        //            else
+        //                if (j<set_copy.length)
+        //                {
+        //                }
+        //        }
+        //    }
+        //}
+    }
+
     var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
         function(c) {window.setTimeout(c, 15)};
@@ -9,10 +65,29 @@ function doAllPlease(inDat)
     active_list=[];     //list of active methods to check each loop
     //I import an array of arrays
     data=inDat;
-    while(data == "")
+
+    var avgdate=0;
+    for(var i=0;i<data.length;i++)
     {
-        data = importPlease();
+        for(var j=0; j<3; j++)
+        if (axes[j]=="Timestamp")
+        {
+            var dat=new Date(data[i][j]);
+            data[i][j] = dat.getDate()/1000;
+            avgdate+=(data[i][j]/data.length);
+        }
     }
+
+    for(var i=0;i<data.length;i++)
+    {
+        for(var j=0; j<3; j++)
+        if (axes[j]=="Timestamp")
+        {
+            data[i][j] -= avgdate;
+        }
+    }
+
+    data = return_sets(4,data);
 
     //var sphere = Phoria.Util.generateSphere(.2,9,9);
 
