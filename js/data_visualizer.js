@@ -1,13 +1,13 @@
 var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
                        window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
                        function(c) {window.setTimeout(c, 15)};
-/**
-   Phoria
-   pho·ri·a (fôr-)
-   n. The relative directions of the eyes during binocular fixation on a given object
-*/
 
 theta=180;   //bounded by 0,360
+active_list=[];     //list of active methods to check each loop
+total_states=[0,1];   //should be related to number of loaded data sets
+state=[];
+state.state=0;
+state.set_state=0;
 
 function moveAroundWorld(direction, increment)
 {
@@ -21,6 +21,41 @@ function moveAroundWorld(direction, increment)
         theta-=increment;
     }
 }
+
+function moveTo(entity, from, to, frames) //vec3, vec3, int, type
+{
+    //get all intermediate positions between from, to, including to
+    var myArray = new Array(frames);
+
+        var baseVec = vec3.create();
+        var divisor = vec3.fromValues(frames,frames,frames);
+        vec3.subtract(baseVec, to, from);
+        vec3.divide(baseVec,baseVec,divisor);
+        var iteratorVec = vec3.clone(baseVec);
+        for (var i=0; i<frames; i++)
+        {
+            var frameVec = vec3.clone(from);
+            vec3.add(iteratorVec, iteratorVec,baseVec);
+            vec3.add(frameVec,frameVec,iteratorVec);
+            myArray[i]=frameVec;
+        }
+
+        return (function(){
+            this.frames=myArray;
+            entity.identity();
+            var curVec = this.frames.shift(-1);
+            entity.translate(curVec);
+            if (this.frames.length == 0)
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+        });
+};
+
 function randomNormal()
 {
     var U1 = Math.random()
@@ -28,6 +63,7 @@ function randomNormal()
     var myNormal = Math.sqrt(-1*Math.log(U1))*Math.cos(2*Math.PI*U2);
     return myNormal;
 }
+
 // bind to window onload event
 window.addEventListener('load', onloadHandler, false);
 
@@ -75,11 +111,15 @@ function onloadHandler()
    var multiplierY=2;
    var cube = Phoria.Util.generateSphere(.2,9,9);
    cubes = new Array(9);
+   state[0] = new Array(9);
+   state[1] = new Array(9);
    var iterator=0;
    for (var i=-4; i<=4; i++){
        cubes[iterator] =  Phoria.Entity.create({points: cube.points, edges: cube.edges, polygons: cube.polygons});
        cubes[iterator].translateX(i);
        cubes[iterator].translateY(bins[iterator]*multiplierY);
+       state[0][iterator]=vec3.fromValues(i,bins[iterator]*multiplierY,0);
+       state[1][iterator]=vec3.fromValues(i*2,0,0);
        iterator++;
    }
 
@@ -89,7 +129,7 @@ function onloadHandler()
    // create the scene and setup camera, perspective and viewport
    var scene = new Phoria.Scene();
    scene.camera.position = {x:0, y:25.0, z:-60.0};
-   scene.camera.lookat = {x:0.0, y:15.0, z:0.0};
+   scene.camera.lookat = {x:0.0, y:5.0, z:0.0};
    scene.perspective.aspect = canvas.width / canvas.height;
    scene.viewport.width = canvas.width;
    scene.viewport.height = canvas.height;
@@ -115,12 +155,77 @@ function onloadHandler()
         scene.graph.push(cubes[i]);
    }
    scene.graph.push(new Phoria.DistantLight());
+   // mouse rotation and position tracking
+   var lastPicked = null;
+   //var lastColor = null;
+   var timer = null;
+   var mouse = Phoria.View.addMouseEvents(canvas, function() {
+       // pick object detection on mouse click
+       var cpv = Phoria.View.calculateClickPointAndVector(scene, mouse.clickPositionX, mouse.clickPositionY);
+       var intersects = Phoria.View.getIntersectedObjects(scene, cpv.clickPoint, cpv.clickVector);
+
+       //document.getElementById("picked").innerHTML = "Selected: " + (intersects.length !== 0 ? intersects[0].entity.id : "[none]");
+
+   if (lastPicked !== null)
+   {
+       lastPicked.style.color = lastPicked.oldcolor;
+       lastPicked.style.emit = 0;
+       Phoria.Entity.debug(lastPicked, {
+                          showId: false,
+                          showAxis: false,
+                          showPosition: false
+                       });
+   }
+   if (intersects.length !== 0)
+   {
+       var obj = intersects[0].entity;
+       obj.oldcolor = obj.style.color;
+       obj.style.color = [255,255,255];
+       obj.style.emit = 0.5;
+       lastPicked = obj;
+
+       Phoria.Entity.debug(obj,{
+                          showId: false,
+                          showAxis: false,
+                          showPosition: true
+                       });
+       //clearInterval(timer);
+       //timer = setTimeout(function() {
+       //    if (lastPicked !== null)
+       //{
+       //    lastPicked.style.color = lastPicked.oldcolor;
+       //    lastPicked.style.emit = 0;
+       //    lastPicked = null;
+       //}
+       //},300);
+   }
+   });
 
    scene.onCamera(function(position, lookAt, up) {
-      var rotMatrix = mat4.create();
-      mat4.rotateY(rotMatrix, rotMatrix, theta);
-      vec4.transformMat4(position, position, rotMatrix);
+       var rotMatrix = mat4.create();
+       mat4.rotateY(rotMatrix, rotMatrix, theta);
+       vec4.transformMat4(position, position, rotMatrix);
    });
+
+   function sceneLogic()
+   {
+       if (state.set_state != state.state)
+       {
+           for (var i=0;i<cubes.length;i++)
+           {
+               active_list.push(moveTo(cubes[i], state[state.set_state][i],state[state.state][i],40));
+           }
+       }
+       if(active_list.length > 0)
+       {
+           for (var i=0; i < active_list.length; i++)
+               if (active_list[i]()){
+                   active_list.splice(i,1);
+                   i--;
+               }
+       }
+       //Relies on globals: active_list
+   }
 
    var pause = false;
    var fnAnimate = function() {
@@ -130,6 +235,8 @@ function onloadHandler()
          //cube.rotateY(0.5*Phoria.RADIANS);
          
          // execute the model view 3D pipeline and render the scene
+         sceneLogic();
+
          scene.modelView();
          renderer.render(scene);
       }
@@ -142,10 +249,10 @@ function onloadHandler()
          case 27: // ESC
             pause = !pause;
             break;
-         case 37:
+         case 37:   //RIGHT
             moveAroundWorld(1,.1);
             break;
-         case 39:
+         case 39:   //LEFT
             moveAroundWorld(-1,.1);
             break;
       }
@@ -153,25 +260,10 @@ function onloadHandler()
 
    // add GUI controls
    var gui = new dat.GUI();
-   var f = gui.addFolder('Perspective');
-   f.add(scene.perspective, "fov").min(5).max(175);
-   f.add(scene.perspective, "near").min(1).max(100);
-   f.add(scene.perspective, "far").min(1).max(1000);
+   //gui.add(state).options(0,1);
+   var f = gui.addFolder('Controls');
+   f.add(state, "state",total_states);
    //f.open();
-   f = gui.addFolder('Camera LookAt');
-   f.add(scene.camera.lookat, "x").min(-100).max(100);
-   f.add(scene.camera.lookat, "y").min(-100).max(100);
-   f.add(scene.camera.lookat, "z").min(-100).max(100);
-   f.open();
-   f = gui.addFolder('Camera Position');
-   f.add(scene.camera.position, "x").min(-100).max(100);
-   f.add(scene.camera.position, "y").min(-100).max(100);
-   f.add(scene.camera.position, "z").min(-100).max(100);
-   f.open();
-   f = gui.addFolder('Camera Up');
-   f.add(scene.camera.up, "x").min(-10).max(10).step(0.1);
-   f.add(scene.camera.up, "y").min(-10).max(10).step(0.1);
-   f.add(scene.camera.up, "z").min(-10).max(10).step(0.1);
    //f = gui.addFolder('Rendering');
 //   f.add(cube.style, "drawmode", ["point", "wireframe", "solid"]);
 //   f.add(cube.style, "shademode", ["plain", "lightsource"]);
@@ -181,4 +273,3 @@ function onloadHandler()
    // start animation
    requestAnimFrame(fnAnimate);
 }
-
