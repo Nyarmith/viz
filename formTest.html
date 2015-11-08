@@ -20,6 +20,8 @@
   $(document).ready(function(){
   
       $("#inputForm").submit(function(event) {
+        event.preventDefault();
+      
         console.log("submit");
         onSubmitRequest("2014-05-08 10:00:00","",["Thermometer","Barometer"]);
       
@@ -29,6 +31,30 @@
 </script>
 
 <form id="inputForm">
+  <input type= "checkbox" name = "sensor" value = "Thermometer">Thermometer<br>
+  <input type= "checkbox" name = "sensor" value = "Soil Temperature Probe">Soil Temperature Probe<br>
+  <input type= "checkbox" name = "sensor" value = "Extra Temperature">Extra Temperature<br>
+  <input type= "checkbox" name = "sensor" value = "Dewpoint">Dewpoint<br>
+  <input type= "checkbox" name = "sensor" value = "Heat Index">Heat Index<br>
+  <input type= "checkbox" name = "sensor" value = "Wet Bulb Globe Temperature">Wet Bulb Globe Temperature<br>
+  <input type= "checkbox" name = "sensor" value = "Leaf Temperature">Leaf Temperature<br>
+  <input type= "checkbox" name = "sensor" value = "Wind Chill">Wind Chill<br>
+  <input type= "checkbox" name = "sensor" value = "Anemometer">Anemometer<br>
+  <input type= "checkbox" name = "sensor" value = "10 Minute Wind Gust">10 Minute Wind Gust<br>
+  <input type= "checkbox" name = "sensor" value = "Hygrometer">Hygrometer<br>
+  <input type= "checkbox" name = "sensor" value = "Extra Humidity">Extra Humidity<br>
+  <input type= "checkbox" name = "sensor" value = "Barometer">Barometer<br>
+  <input type= "checkbox" name = "sensor" value = "Wind Vane">Wind Vane<br>
+  <input type= "checkbox" name = "sensor" value = "Solar Radiation Sensor">Solar Radiation Sensor<br>
+  <input type= "checkbox" name = "sensor" value = "UV Radiation Sensor">UV Radiation Sensor<br>
+  <input type= "checkbox" name = "sensor" value = "Rain Rate">Rain Rate<br>
+  <input type= "checkbox" name = "sensor" value = "Soil Moisture Probe">Soil Moisture Probe<br>
+  <input type= "checkbox" name = "sensor" value = "Leaf Wetness Indicator">Leaf Wetness Indicator<br>
+  <input type= "checkbox" name = "sensor" value = "Rain Gauge">Rain Gauge<br>
+  <input type= "checkbox" name = "sensor" value = "CO2 Sensor">CO2 Sensor<br>
+  <input type= "checkbox" name = "sensor" value = "Sound Detector">Sound Detector<br>
+  <input type= "checkbox" name = "sensor" value = "Current Solar Power">Current Solar Power<br>
+  <input type= "checkbox" name = "sensor" value = "Solar Energy Today">Solar Energy Today<br>
   <input type="submit">
 </form>
 
