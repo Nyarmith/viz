@@ -1,4 +1,4 @@
-function(inDat)
+function doAllPlease(inDat)
 {
     var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
