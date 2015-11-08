@@ -21,16 +21,25 @@
   
       $("#inputForm").submit(function(event) {
         event.preventDefault();
-      
+         
+        sensors = [];
+        
+        list = $("input[type='checkbox']");
+        
+        for(obj in list) {
+          if(list[obj].checked) sensors.push($(list[obj]).attr('value'));
+        }
+        
         console.log("submit");
-        onSubmitRequest("2014-05-08 10:00:00","",["Thermometer","Barometer"]);
+        onSubmitRequest("2014-05-08 10:00:00","",sensors.slice(0,2));
       
       });
   });
 
 </script>
 
-<form id="inputForm">
+<form id="inputForm"> 
+  <input type="date" name = "from"><br>
   <input type= "checkbox" name = "sensor" value = "Thermometer">Thermometer<br>
   <input type= "checkbox" name = "sensor" value = "Soil Temperature Probe">Soil Temperature Probe<br>
   <input type= "checkbox" name = "sensor" value = "Extra Temperature">Extra Temperature<br>
