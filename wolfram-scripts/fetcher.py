@@ -68,7 +68,7 @@ def FC(data):
 ## Format of return from API:	{(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
 #		Different dependent on data type: ({266257., 16., 69.} | {266259., 15., 69.})
 ## Give back to visualizer:		Array of arrays
-def IFace(jstr):
+def Interface(jstr):
 	parsed = json.loads(jstr)
 	parsed.pop(0)
 
@@ -83,7 +83,7 @@ def IFace(jstr):
 	ret = "[{"
 	for i in p:
 		ret = ret + str(i) + ","
-	ret = "FindClusters" + ret[:len(ret)-1] + "}]"
+	ret = "FindClusters" + ret[:len(ret)-1] + "}, 9]"	# Splits into maximum of 9 clusters
 
 	Wres = str( FC(ret) ).strip()	# Wolfram result is thus; further modification needed for visualization
 	return parse(Wres)
@@ -145,9 +145,9 @@ def parse(Res):
 	m = 0 		# number of distinct matrices in result
 	lst = [[[]]]
 
-	if(Res[0] == '{'):
+	#if(Res[0] == '{'):
 		#Replacements:
-		while (Res[c1] != '\0'):
+	#	while (Res[c1] != '\0'):
 
 # {} is only applicable for sets with all integers
 # DOES NOT WORK
