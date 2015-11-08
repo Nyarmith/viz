@@ -7,6 +7,10 @@ theta=180;   //bounded by 0,360
 active_list=[];     //list of active methods to check each loop
 //I import an array of arrays
 data=importPlease();
+while(data == "")
+{
+    data = importPlease();
+}
 
 //var sphere = Phoria.Util.generateSphere(.2,9,9);
 
