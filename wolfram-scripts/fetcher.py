@@ -52,6 +52,11 @@ def FC(data):
 
 ##################
 ##
+##	NOTE : This function is meant to be the MAIN function of this file.
+##			All commands you issue should be able to be handled by IFace() (and Fields())
+##
+##################
+##
 ##	Interface function between FC (Find_Clusters) and JQuery/Javascript frontend.
 ##	Will accept JSON, then do heavy lifting of converting to viable Mathematica query.
 ##	After receiving result from FC, re-parses into (JSON? tuple?) for data visualizer to receive
@@ -61,7 +66,8 @@ def FC(data):
 ## Given from Javascript:	e.g. [["Record ID","10 Minute Wind Gust","Heat Index"],["266257","16","69.0"],["266259","15","69.0"]]
 ## Format of call to Wolfram:	FindClusters[{ {1,-8,2}, {2,4,1}, {100,-10,1}, {50,20,3} }]
 ## Format of return from API:	{(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
-## Give back to visualizer:		Also JSON?
+#		Different dependent on data type: ({266257., 16., 69.} | {266259., 15., 69.})
+## Give back to visualizer:		Array of arrays
 def IFace(jstr):
 	parsed = json.loads(jstr)
 	parsed.pop(0)
@@ -79,7 +85,8 @@ def IFace(jstr):
 		ret = ret + str(i) + ","
 	ret = "FindClusters" + ret[:len(ret)-1] + "}]"
 
-	return str( FC(ret) ).strip()	# Wolfram result is thus; further modification needed for visualization
+	Wres = str( FC(ret) ).strip()	# Wolfram result is thus; further modification needed for visualization
+	return parse(Wres)
 
 ##################
 ##
@@ -93,7 +100,8 @@ def Fields(jstr):
 
 	for idx, e in enumerate(parsed[0]):
 		q[idx] = str(e)
-	return q[0] + '\t' + q[1] + '\t' + q[2]
+	#return q[0] + '\t' + q[1] + '\t' + q[2]
+	return [q[0], q[1], q[2]]
 
 #########
 ##
@@ -112,9 +120,10 @@ def Fields(jstr):
 def parse(Res):
 	# This needs to be modified so Sergei can recieve it properly
 	# Looks like
+	#		Integer:
 	# {(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
 	# 
-	# Or like this:
+	# 		Float:
 	#	({266257., 16., 69.} | {266259., 15., 69.})
 	#
 	# Array of arrays would be
@@ -136,6 +145,12 @@ def parse(Res):
 	m = 0 		# number of distinct matrices in result
 	lst = [[[]]]
 
+	if(Res[0] == '{'):
+		#Replacements:
+		while (Res[c1] != '\0'):
+
+# {} is only applicable for sets with all integers
+# DOES NOT WORK
 	if(Res[0] == '{'):
 		while( Res[c1] != '}' ):
 			if(Res[c1] == '{'):
@@ -198,6 +213,8 @@ def parse(Res):
 
 		return lst
 
+# Applicable for sets with floats
+# DOES WORK - always reorder data sets to have floats
 	elif(Res[0] == '('):
 		c1 = 0
 		while( Res[c1] != ')' ):
