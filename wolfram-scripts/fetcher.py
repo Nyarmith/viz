@@ -79,16 +79,12 @@ def IFace(jstr):
 		ret = ret + str(i) + ","
 	ret = "FindClusters" + ret[:len(ret)-1] + "}]"
 
-	# not really
-	# return ret	# correct !
-
-	# This needs to be modified so Sergei can recieve it properly
-	return str( FC(ret) )
+	return str( FC(ret) ).strip()	# Wolfram result is thus; further modification needed for visualization
 
 ##################
 ##
 ##  Secondary interface function:
-##	Takes the same JSON as IFace, but returns a string tuple(?) containing field values for graph clarity.
+##	Takes the same JSON as IFace, but returns a tab-delimited string containing values for axes.
 ##
 def Fields(jstr):
 	parsed = json.loads(jstr)
@@ -98,3 +94,176 @@ def Fields(jstr):
 	for idx, e in enumerate(parsed[0]):
 		q[idx] = str(e)
 	return q[0] + '\t' + q[1] + '\t' + q[2]
+
+#########
+##
+## Iterate through string result
+# (Recursively?) put values into lists
+	
+# Characters to encounter:
+#	{ } ( ) | - ,
+#	0-9
+
+# 3D List:	list[m][n][p]
+#	p ranges 0-2 for x,y,z
+#	n ranges for total points in one cluster
+#	m ranges for total clusters
+##
+def parse(Res):
+	# This needs to be modified so Sergei can recieve it properly
+	# Looks like
+	# {(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
+	# 
+	# Or like this:
+	#	({266257., 16., 69.} | {266259., 15., 69.})
+	#
+	# Array of arrays would be
+	#
+	#[  [ [1,-8,2],[2,4,1],[5,1,8] ], [ [100,-10,1],[50,20,3],[60,0,13] ], [ [3,2,31],[0,3,250] ]  ]
+	#		[ [[],[],[]],[[],[],[]],[[],[]] ]
+	#
+
+	c1 = 0 	# String counters
+	c2 = 1
+
+	buf = [0] 	#Temporary holding value
+	neg = 1		# counter for negative numbers
+
+	pipe = 0 	# count for how many pipes have been passed (after two there will be a possible new point)
+		# This happens to count 0-2 for items in row
+
+	n = 0 		# number of rows in one matrix
+	m = 0 		# number of distinct matrices in result
+	lst = [[[]]]
+
+	if(Res[0] == '{'):
+		while( Res[c1] != '}' ):
+			if(Res[c1] == '{'):
+				c2 = c2
+			elif(Res[c1] == '('):
+				#m = m + 1
+				c2 = c2
+			elif(Res[c1] == ')'):
+				c1 = c1 + 1
+			elif(Res[c1] == '|'):
+				pipe = pipe + 1
+			elif(Res[c1] == ' '):
+				c2 = c2
+			elif(Res[c1] == ','):
+				c2 = c2
+			elif(Res[c1] == '.'):
+				buf.append('.')
+			elif(Res[c1] == '-'):
+				neg = -1
+			else:
+				buf.append(int( Res[c1] ))		# must be a number
+
+				if( Res[c1+1]=='}' or
+					Res[c1+1]=='{' or
+					Res[c1+1]=='(' or
+					Res[c1+1] == ')' or
+					Res[c1+1] == '|' or
+					Res[c1+1]==' ' or
+					Res[c1+1]==',' or
+					Res[c1+1]=='-' ):
+					sum = ""
+					for c in buf:
+						sum = sum + str(c)
+					#list[m][n][pipe] = float(sum) * neg
+					lst[m][n].append( float(sum)*neg )
+
+					print("M=%d n=%d pipe=%d "%(m,n,pipe))
+					print lst
+
+					sum = ""
+					buf = [0]
+					neg = 1
+
+					if(pipe == 2):
+						pipe = 0
+						if(Res[c1+1:].strip()[0]):
+							n = 0
+							m = m + 1
+						else:
+							n + 1
+				else: # . or digit
+					#buf.append(Wres[c1+1])
+					c2 = c2
+
+			c1 = c1 + 1
+			c2 = c2 + 1
+
+			#print "M=%d n=%d pipe=%d "%(m,n,pipe)
+			#print lst
+
+		return lst
+
+	elif(Res[0] == '('):
+		c1 = 0
+		while( Res[c1] != ')' ):
+			if(Res[c1] == '('):
+				c2 = c2
+			elif(Res[c1] == '{'):
+				c2 = c2
+			elif(Res[c1] == '}'):
+				c2 = c2
+			elif(Res[c1] == ','):
+				pipe = pipe + 1
+			elif(Res[c1] == ' '):
+				c2 = c2
+			elif(Res[c1] == '|'):
+				c2 = c2
+			elif(Res[c1] == '-'):
+				neg = -1
+			else:	# [0-9] or \.
+				if(Res[c1] == '.'):
+					buf.append('.')
+				else:
+					#print "have a number %d at c1=%d"%(int(Res[c1]), c1)
+					buf.append(int( Res[c1] ))		# must be a number
+
+				if( Res[c1+1]=='}' or
+					Res[c1+1]=='{' or
+					Res[c1+1]=='(' or
+					Res[c1+1] == ')' or
+					Res[c1+1] == '|' or
+					Res[c1+1]==' ' or
+					Res[c1+1]==',' or
+					Res[c1+1]=='-' ):
+					sum = ""
+					for c in buf:
+						sum = sum + str(c)
+					#list[m][n][pipe] = float(sum) * neg
+					lst[m][n].append( float(sum)*neg )		# Append axes one by one: make sure to append points, clusters
+
+					#print("M=%d n=%d pipe=%d "%(m,n,pipe))
+					#print lst
+
+					sum = ""
+					buf = [0]
+					neg = 1
+
+					if(pipe == 2):
+						pipe = 0
+						if(Res[c1+1:].strip()[0] == ','):
+							n + 1
+							lst[m].append([])
+						elif(Res[c1+1:].strip()[0] == ')'):
+							c2 = c2
+						else:
+							n = 0
+							m = m + 1
+							lst.append([[]])
+							
+				else: # . or digit
+					#buf.append(Wres[c1+1])
+					c2 = c2
+
+			c1 = c1 + 1
+			c2 = c2 + 1
+
+			#print "\nM=%d n=%d pipe=%d "%(m,n,pipe)
+			#print lst
+
+		lst.pop(m)
+		return lst
