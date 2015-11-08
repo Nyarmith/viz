@@ -2,16 +2,24 @@ function doAllPlease(inDat,axes)
 {
     function return_sets(depth, item_set)//depth=number of sets to return
     {
-        var out=new Array();
+        var out=new Array(3);
         //partition about the largest
+        var it=0;
+
         for (var i=0;i<item_set.length;i+=item_set.length/3)
         {
-            out[i]=[];
-            for (var j=i; j<i+item_set.length/3;i++)
+                              out[it]=new Array(item_set.length/3);
+
+            for (var j=i; j<i+item_set.length/3;j++)
             {
-                out[i][j-i] = item_set[j];
+                out[it][j-i] = item_set[j];
+                console.log(i);
+               console.log(j);
             }
+            it++;
         }
+        
+        return out;
         //this.dist=function(arr1,arr2)
         //{
         //    return (Math.sqrt(arr1[0]*arr2[0]+arr1[1]*arr2[1]+arr1[2]*arr2[2]));
@@ -89,14 +97,17 @@ function doAllPlease(inDat,axes)
 
     data = return_sets(4,data);
 
-    //var sphere = Phoria.Util.generateSphere(.2,9,9);
+    var sphere = Phoria.Util.generateSphere(.2,9,9);
 
     total_states=["default","mean","mean-averaged"];   //should be related to number of loaded data sets
-    state=[];
-    my_colors=[];
+    state=new Array();
+    state["default"]=new Array();
+    state["mean"]=new Array();
+    state["mean-averaged"]=new Array();
+    my_colors=new Array();
     state.state="default";
     state.set_state="default";
-    entity_list=[];
+    entity_list=new Array();
 
     var iterator=0;
     //change color each cluster
@@ -113,13 +124,13 @@ function doAllPlease(inDat,axes)
             //other calculations here
             entity_list[iterator]=Phoria.Entity.create({points: sphere.points, edges: sphere.edges, polygons: sphere.polygons});
             entity_list[iterator].translate(state["default"][iterator]);
-            entity_list.style.color = my_colors[iterator];
+            entity_list[iterator].style.color = my_colors[iterator];
             iterator++;
         }
         var end_step = iterator;
         var wgt=.25;
         var coefficient1=vec3.fromValues(wgt,wgt,wgt);
-        var coefficient1=vec3.fromValues(1-wgt,1-wgt,1-wgt);
+        var coefficient2=vec3.fromValues(1-wgt,1-wgt,1-wgt);
         for (var i=first_step;i<end_step;i++){
             state["mean"][i] = mean;
             var temp1=vec3.create();
@@ -188,10 +199,9 @@ function doAllPlease(inDat,axes)
     }
 
     // bind to window onload event
-    window.addEventListener('load', onloadHandler, false);
+    //window.addEventListener('load', onloadHandler, false);
 
-    function onloadHandler()
-    {
+
         var n = 1000;
         //generate random dataset
         normalArray = new Array(n);
@@ -396,5 +406,5 @@ function doAllPlease(inDat,axes)
 
         // start animation
         requestAnimFrame(fnAnimate);
-    }
+
 }
