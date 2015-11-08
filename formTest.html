@@ -1,0 +1,21 @@
+<script src="js/jquery.js"></script>
+<script src="js/dataHandler.js"></script>
+<script src="js/weatherstemInterface.js"></script>
+<script>
+
+  $(document).ready(function(){
+  
+      $("#inputForm").submit(function(event) {
+        console.log("submit");
+        onSubmitRequest("2014-05-08 10:00:00","",["Thermometer","Barometer"]);
+      
+      });
+  });
+
+</script>
+
+<form id="inputForm">
+  <input type="submit">
+</form>
+
+<canvas id="canvas" width = "768" height = "512"></canvas>

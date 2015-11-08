@@ -11,9 +11,12 @@ function importPlease() {
 function onSubmitRequest(from_date, to_date, sensors) {
   weatherstemRequest(stations, from_date, to_date, sensors, function(weatherstemData){
     
+    data = weatherstemData.slice(1,31);
+    
+    /*
     callToAmarsCode(weatherstemData, function(wolframData) {
       data = wolframData;
-    }
+    }*/
     
   });
 }
