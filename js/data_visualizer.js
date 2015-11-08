@@ -215,6 +215,7 @@ function onloadHandler()
            {
                active_list.push(moveTo(cubes[i], state[state.set_state][i],state[state.state][i],40));
            }
+           state.set_state = state.state;
        }
        if(active_list.length > 0)
        {
