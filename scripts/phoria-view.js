@@ -12,11 +12,11 @@
  */
 (function() {
    "use strict";
-   
+
    Phoria.View = {};
-   
+
    Phoria.View.events = {};
-   
+
    Phoria.View.addMouseEvents = function addMouseEvents(el, fnOnClick)
    {
       if (el.id)
@@ -32,25 +32,25 @@
             positionY: 0,
             clickPositionY: 0    // last mouse click position
          };
-         
+
          // set object reference for our events
          Phoria.View.events[el.id] = mouse;
-         
+
          mouse.onMouseMove = function onMouseMove(evt) {
          	mouse.positionX = evt.clientX;
          	mouse.velocityH = mouse.velocityLastH + (mouse.positionX - mouse.clickPositionX) * 0.5;
          	mouse.positionY = evt.clientY;
          	mouse.velocityV = mouse.velocityLastV + (mouse.positionY - mouse.clickPositionY) * 0.5;
          };
-         
+
          mouse.onMouseUp = function onMouseUp(evt) {
          	el.removeEventListener('mousemove', mouse.onMouseMove, false);
          };
-         
+
          mouse.onMouseOut = function onMouseOut(evt) {
          	el.removeEventListener('mousemove', mouse.onMouseMove, false);
          };
-         
+
          mouse.onMouseDown = function onMouseDown(evt) {
          	evt.preventDefault();
          	el.addEventListener('mousemove', mouse.onMouseMove, false);
@@ -59,18 +59,18 @@
          	mouse.clickPositionY = evt.clientY;
          	mouse.velocityLastV = mouse.velocityV;
          };
-         
+
          el.addEventListener('mousedown', mouse.onMouseDown, false);
          el.addEventListener('mouseup', mouse.onMouseUp, false);
          el.addEventListener('mouseout', mouse.onMouseOut, false);
-         
+
          // add click handler if supplied
          if (fnOnClick) el.addEventListener('click', fnOnClick, false);
-         
+
          return mouse;
       }
    }
-   
+
    Phoria.View.removeMouseEvents = function removeMouseEvents(el, fnOnClick)
    {
       if (el.id)
@@ -87,7 +87,7 @@
          }
       }
    }
-   
+
    Phoria.View.getMouse = function getMouse(el)
    {
       return Phoria.View.events[el.id];
@@ -191,7 +191,7 @@
             }
          }
       }
-      
+
       // return list of all intersections
       return intersections;
    }
