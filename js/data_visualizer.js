@@ -2,12 +2,54 @@ var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnima
                        window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
                        function(c) {window.setTimeout(c, 15)};
 
+COLORS=[[250,0,0],[0,250,0],[0,0,250],[125,125,0],[0,125,125],[125,0,125],[125,125,125],[200,0,35],[35,0,200],[200,35,0],[0,35,200],[0,0,0],[200,100,100],[100,200,100],[100,100,200]];
 theta=180;   //bounded by 0,360
 active_list=[];     //list of active methods to check each loop
-total_states=[0,1];   //should be related to number of loaded data sets
+//I import an array of arrays
+data=importPlease();
+
+//var sphere = Phoria.Util.generateSphere(.2,9,9);
+
+total_states=["default","mean","mean-averaged"];   //should be related to number of loaded data sets
 state=[];
-state.state=0;
-state.set_state=0;
+my_colors=[];
+state.state="default";
+state.set_state="default";
+entity_list=[];
+
+var iterator=0;
+//change color each cluster
+for (var i=0;i<data.length;i++){    //cluster
+    var first_step = iterator;
+    var mean = vec3.create();
+    var divisor = vec3.fromValues(data[i].length,data[i].length,data[i].length);
+    for (var j=0;j<data[i].length;j++){ //node
+        my_colors[iterator] = COLORS[i];
+        state["default"][iterator] = vec3.fromValues(data[i][j][0],data[i][j][1],data[i][j][2]);  //MAY NEED TO BE MODIFIED
+        var guy_to_add = vec3.clone(iterator);
+        vec3.divide(guy_to_add,guy_to_add,divisor);
+        vec3.add(mean,mean,guy_to_add);
+        //other calculations here
+        entity_list[iterator]=Phoria.Entity.create({points: sphere.points, edges: sphere.edges, polygons: sphere.polygons});
+        entity_list[iterator].translate(state["default"][iterator]);
+        entity_list.style.color = my_colors[iterator];
+        iterator++;
+    }
+    var end_step = iterator;
+    var wgt=.25;
+    var coefficient1=vec3.fromValues(wgt,wgt,wgt);
+    var coefficient1=vec3.fromValues(1-wgt,1-wgt,1-wgt);
+    for (var i=first_step;i<end_step;i++){
+        state["mean"][i] = mean;
+        var temp1=vec3.create();
+        var temp2=vec3.create();
+        vec3.multiply(temp1,state["default"][i],coefficient1);
+        vec3.multiply(temp2,mean,coefficient2);
+        vec3.add(temp1,temp2,temp1);
+        state["mean-averaged"][i] = temp1;
+    }
+}
+
 
 function moveAroundWorld(direction, increment)
 {
@@ -109,19 +151,19 @@ function onloadHandler()
    }
 
    var multiplierY=2;
-   var cube = Phoria.Util.generateSphere(.2,9,9);
-   cubes = new Array(9);
-   state[0] = new Array(9);
-   state[1] = new Array(9);
-   var iterator=0;
-   for (var i=-4; i<=4; i++){
-       cubes[iterator] =  Phoria.Entity.create({points: cube.points, edges: cube.edges, polygons: cube.polygons});
-       cubes[iterator].translateX(i);
-       cubes[iterator].translateY(bins[iterator]*multiplierY);
-       state[0][iterator]=vec3.fromValues(i,bins[iterator]*multiplierY,0);
-       state[1][iterator]=vec3.fromValues(i*2,0,0);
-       iterator++;
-   }
+   //var cube = Phoria.Util.generateSphere(.2,9,9);
+   //cubes = new Array(9);
+   //state["default"] = new Array(9);
+   //state["origin"] = new Array(9);
+  // var iterator=0;
+  // for (var i=-4; i<=4; i++){
+  //     cubes[iterator] =  Phoria.Entity.create({points: cube.points, edges: cube.edges, polygons: cube.polygons});
+  //     cubes[iterator].translateX(i);
+  //     cubes[iterator].translateY(bins[iterator]*multiplierY);
+  //     state["default"][iterator]=vec3.fromValues(i,bins[iterator]*multiplierY,0);
+  //     state["origin"][iterator]=vec3.fromValues(i*2,0,0);
+  //     iterator++;
+  // }
 
    // get the canvas DOM element and the 2D drawing context
    var canvas = document.getElementById('canvas');
@@ -150,9 +192,9 @@ function onloadHandler()
          objectsortmode: "back"
       }
    }));
-   for (var i=0; i<9; i++)
+   for (var i=0; i<entity_list.length; i++)
    {
-        scene.graph.push(cubes[i]);
+        scene.graph.push(entity_list[i]);
    }
    scene.graph.push(new Phoria.DistantLight());
    // mouse rotation and position tracking
@@ -211,9 +253,9 @@ function onloadHandler()
    {
        if (state.set_state != state.state)
        {
-           for (var i=0;i<cubes.length;i++)
+           for (var i=0;i<entity_list.length;i++)
            {
-               active_list.push(moveTo(cubes[i], state[state.set_state][i],state[state.state][i],40));
+               active_list.push(moveTo(entity_list[i], state[state.set_state][i],state[state.state][i],40));
            }
            state.set_state = state.state;
        }
