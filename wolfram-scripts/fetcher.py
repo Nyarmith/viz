@@ -145,9 +145,39 @@ def parse(Res):
 	m = 0 		# number of distinct matrices in result
 	lst = [[[]]]
 
-	#if(Res[0] == '{'):
+"""
+{(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
+({1 , -8 , 2 2 , 4 , 1 5 , 1 , 8}| {100 , -10 , 1 50 , 20 , 3 60 , 0 , 13}| {3 , 2 , 31 0 , 3 , 250})
+
+
+({266257., 16., 69.} | {266259., 15., 69.})
+"""
+
+	counter = 0
+	check = False
+	if(Res[0] == '{'):
 		#Replacements:
-	#	while (Res[c1] != '\0'):
+		while (Res[c1] != '\0'):
+			if(Res[c1] == '{'):
+				Res = stri[:c1] + "(" + stri[c1:]
+			elif(Res[c1] == '}'):
+				Res = stri[:c1] + ")" + stri[c1:]
+			elif(Res[c1] == ')'):
+				Res = stri[:c1] + "}" + stri[c1:]
+			elif(Res[c1] == '('):
+				Res = stri[:c1] + "{" + stri[c1:]
+			elif(Res[c1] == '|'):
+				Res = stri[:c1] + "," + stri[c1:]
+				counter = counter + 1
+			elif(Res[c1] == ','):
+				Res = stri[:c1] + "|" + stri[c1:]
+			elif(Res[c1] == ' ' and !check and counter==2):
+				check = True
+			elif(Res[c1] == ' ' and check):
+				check = False
+				Res = stri[:c1] + "}, {" + stri[c1:]
+			c1 = c1 + 1
+
 
 # {} is only applicable for sets with all integers
 # DOES NOT WORK
