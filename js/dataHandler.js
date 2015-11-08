@@ -13,6 +13,8 @@ function onSubmitRequest(from_date, to_date, sensors) {
     
     data = weatherstemData.slice(1,31);
     
+    doAllPlease(data, weatherstemData[0]);
+    
     /*
     callToAmarsCode(weatherstemData, function(wolframData) {
       data = wolframData;
