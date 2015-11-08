@@ -82,6 +82,7 @@ def IFace(jstr):
 	# not really
 	# return ret	# correct !
 
+	# This needs to be modified so Sergei can recieve it properly
 	return str( FC(ret) )
 
 ##################
@@ -96,4 +97,4 @@ def Fields(jstr):
 
 	for idx, e in enumerate(parsed[0]):
 		q[idx] = str(e)
-	return ( (q[0], q[1], q[2]) )
+	return q[0] + '\t' + q[1] + '\t' + q[2]
