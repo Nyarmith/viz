@@ -14,7 +14,7 @@ import json
 ##
 ##	Input:	Complete Wolfram query ~ FindClusters[{ {x1,y1,z1}, {x2,y2,z2} ... }]
 ##	Output: Set of arrays sorted into clusters
-def FC(data):
+def FC(data, show_gui=False):
 	input = data
 
 	server = 'http://api.wolframalpha.com/v2/query.jsp'
@@ -33,19 +33,22 @@ def FC(data):
 	for pod in result.Pods():
 		waPod = wap.Pod(pod)
 		title = "Pod.title: " + waPod.Title()[0]
-		#print title
+		if(show_gui):
+			print title
 		for subpod in waPod.Subpods():
 			waSubpod = wap.Subpod(subpod)
 			plaintext = waSubpod.Plaintext()[0]
 			img = waSubpod.Img()
 			src = wap.scanbranches(img[0], 'src')[0]
 			alt = wap.scanbranches(img[0], 'alt')[0]
-			#print "-------------"
-			#print "img.src: " + src
-			#print "img.alt: " + alt
+			if(show_gui):
+				print "-------------"
+				print "img.src: " + src
+				print "img.alt: " + alt
 			if ( title.strip() == "Pod.title: Result" ):
 				return alt;
-		#print "\n"
+		if(show_gui):
+			print "\n"
 
 	# Never got a result :(
 	return 0;
