@@ -18,7 +18,7 @@ def FC(data):
 	input = data
 
 	server = 'http://api.wolframalpha.com/v2/query.jsp'
-	with open('../../APPID') as f:
+	with open('../../APPID_wolfram') as f:
 		appid = f.readline().strip()
 
 	# Need to further parse data; maybe?	Nope! Unless we want timestamps ... :(
