@@ -1,0 +1,12 @@
+Pod.title: Input
+-------------
+img.src: http://www4c.wolframalpha.com/Calculate/MSP/MSP4781ddaedg56ga8cai600005205ag7gd5341ad1?MSPStoreType=image/gif&s=29
+img.alt: FindClusters[(1 | -8 | 2 2 | 4 | 1 100 | -10 | 1 50 | 20 | 3 3 | 2 | 31 5 | 1 | 8 60 | 0 | 13 0 | 3 | 250)]
+
+
+Pod.title: Result
+-------------
+img.src: http://www4c.wolframalpha.com/Calculate/MSP/MSP4791ddaedg56ga8cai6000038a76h4gc2c3537f?MSPStoreType=image/gif&s=29
+img.alt: {(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
+
+
