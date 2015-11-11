@@ -122,7 +122,7 @@ def Fields(jstr):
 ##		List of length:	100
 ##		Range for x:	[0, 100]
 ##		Range for y:	[50, 200]
-def main(q=100, xrange=100, yrange=150):
+def fc_gen(q=100, xrange=100, yrange=150):
 	from random import random as r
 	x=[]
 	y=[]
@@ -195,23 +195,23 @@ def parse(Res):
 		#Replacements:
 		while (Res[c1] != '\0'):
 			if(Res[c1] == '{'):
-				Res = stri[:c1] + "(" + stri[c1:]
+				Res = Res[:c1] + "(" + Res[c1:]
 			elif(Res[c1] == '}'):
-				Res = stri[:c1] + ")" + stri[c1:]
+				Res = Res[:c1] + ")" + Res[c1:]
 			elif(Res[c1] == ')'):
-				Res = stri[:c1] + "}" + stri[c1:]
+				Res = Res[:c1] + "}" + Res[c1:]
 			elif(Res[c1] == '('):
-				Res = stri[:c1] + "{" + stri[c1:]
+				Res = Res[:c1] + "{" + Res[c1:]
 			elif(Res[c1] == '|'):
-				Res = stri[:c1] + "," + stri[c1:]
+				Res = Res[:c1] + "," + Res[c1:]
 				counter = counter + 1
 			elif(Res[c1] == ','):
-				Res = stri[:c1] + "|" + stri[c1:]
+				Res = Res[:c1] + "|" + Res[c1:]
 			elif(Res[c1] == ' ' and check==False and counter==2):
 				check = True
 			elif(Res[c1] == ' ' and check):
 				check = False
-				Res = stri[:c1] + "}, {" + stri[c1:]
+				Res = Res[:c1] + "}, {" + Res[c1:]
 			c1 = c1 + 1
 
 
