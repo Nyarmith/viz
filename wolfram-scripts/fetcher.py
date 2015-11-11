@@ -18,7 +18,7 @@ def FC(data, show_gui=False):
 	input = data
 
 	server = 'http://api.wolframalpha.com/v2/query.jsp'
-	with open('../../APPID') as f:
+	with open('../../APPID_wolfram') as f:
 		appid = f.readline().strip()
 
 	# Need to further parse data; maybe?	Nope! Unless we want timestamps ... :(
@@ -51,7 +51,7 @@ def FC(data, show_gui=False):
 			print "\n"
 
 	# Never got a result :(
-	return 0;
+	return "\0";
 
 ##################
 ##
@@ -66,12 +66,19 @@ def FC(data, show_gui=False):
 ##
 ##		Formats:
 ##
-## Given from Javascript:	e.g. [["Record ID","10 Minute Wind Gust","Heat Index"],["266257","16","69.0"],["266259","15","69.0"]]
-## Format of call to Wolfram:	FindClusters[{ {1,-8,2}, {2,4,1}, {100,-10,1}, {50,20,3} }]
-## Format of return from API:	{(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
-#		Different dependent on data type: ({266257., 16., 69.} | {266259., 15., 69.})
-## Give back to visualizer:		Array of arrays
-def main(jstr):
+## Given from Javascript:
+#		[["Record ID","10 Minute Wind Gust","Heat Index"],["266257","16","69.0"],["266259","15","69.0"]]
+## Format of call to Wolfram:
+#		FindClusters[{ {1,-8,2}, {2,4,1}, {100,-10,1}, {50,20,3} }]
+## Format of return from API:
+#		{(1 | -8 | 2 2 | 4 | 1 5 | 1 | 8), (100 | -10 | 1 50 | 20 | 3 60 | 0 | 13), (3 | 2 | 31 0 | 3 | 250)}
+#		({266257., 16., 69.} | {266259., 15., 69.})
+## Give back to visualizer:
+#		Array of arrays
+#
+def main(jstr, ret=""):
+	if(jstr == "False"):
+		return parse( str( FC(ret) ).strip() )
 	#jstr = raw_input()
 	parsed = json.loads(jstr)
 	parsed.pop(0)
@@ -106,6 +113,39 @@ def Fields(jstr):
 		q[idx] = str(e)
 	#return q[0] + '\t' + q[1] + '\t' + q[2]
 	return [q[0], q[1], q[2]]
+
+#########
+##
+##	FindCluster generation (just for testing)
+##
+##	Default values:
+##		List of length:	100
+##		Range for x:	[0, 100]
+##		Range for y:	[50, 200]
+def main(q=100, xrange=100, yrange=150):
+	from random import random as r
+	x=[]
+	y=[]
+
+	for c in range(0,q):
+		x.append( r()*xrange )
+		y.append( r()*yrange + 50 )
+
+	p = []
+	for f,b in zip(x,y):
+		p.append( "(" + str(f)[:5] + ", " + str(b)[:5] + ")" )
+
+	fc=""
+	for line in p:
+		fc = fc + ", " + line
+
+	k=9
+	if(q<9):
+		k = q-3
+	if(k<=0):
+		k = q-1
+	fc = "FindClusters[{" + fc[2:] + "}, " + str(k) + "]"
+	return fc
 
 #########
 ##
