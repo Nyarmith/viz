@@ -43,9 +43,6 @@ function doAllPlease(inDat,axes)
     visualizer.algo_handler.setAnimHandler(requestAnimFrame);    //passes handler to algo_handler for its implementation
     visualizer.data_handler.setData(inDat, axes);   //function accepts data and keys
 
-
-
-    // start animation
-    requestAnimFrame(fnAnimate);
+    visualizer.start();     //starts graphic rendering and all taht
 
 }
